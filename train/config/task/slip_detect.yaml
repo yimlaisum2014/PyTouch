@@ -14,9 +14,11 @@ data:
 
 optimizer:
   type: "Adam"
-  lr: 0.00847
+  # lr: 0.00847
+  lr: 0.01
   lr_patience: 5
-  weight_decay: 1.0115995395401329e-08
+  # weight_decay: 1.0115995395401329e-08
+  momentum: 0.9
 training:
   seed: 42
   batch_size: 64

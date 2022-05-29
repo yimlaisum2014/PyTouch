@@ -28,15 +28,21 @@ class TouchDetect(nn.Module):
         self.model_path = model_path
         self.defaults = defaults
         self.transform = transform if transform is not None else self._transforms()
-
+        _log.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        _log.info(self.transform)
+        _log.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         if model_path is not None:
             # load custom model from path
             state_dict = PyTouchZoo.load_model(model_path)
+
+            # checkpoint = torch.load(model_path)
+            # model.load_state_dict(checkpoint['model_state_dict'])
+
         else:
             # load model from pytouch zoo
             zoo = PyTouchZoo()
             state_dict = zoo.load_model_from_zoo(zoo_model, sensor)
-        self.model = TouchDetectModel(state_dict=state_dict)
+        self.model = TouchDetectModel(state_dict=state_dict, model_path=model_path)
 
     def __call__(self, frame):
         return self.is_touching(frame)
@@ -75,9 +81,11 @@ class TouchDetect(nn.Module):
     ):
         transforms_list = []
         transforms_list.append(transforms.Resize(list(data_cfg.scales)))
-        if train:
-            transforms_list.append(transforms.RandomHorizontalFlip())
-            transforms_list.append(transforms.RandomVerticalFlip())
+        _log.info("0st_Transforms applied:")
+        _log.info(transforms_list)
+        #if train:
+            # transforms_list.append(transforms.RandomHorizontalFlip())
+            # transforms_list.append(transforms.RandomVerticalFlip())
             # transforms_list.append(transforms.RandomRotation(degrees=5))
             # transforms_list.append(
             #     transforms.ColorJitter(
@@ -88,6 +96,8 @@ class TouchDetect(nn.Module):
             transforms.ToTensor(),
             transforms.Normalize(mean=data_cfg.mean, std=data_cfg.std),
         ]
+        _log.info("1st_Transforms applied:")
+        _log.info(transforms_list)
         frame_transform = transforms.Compose(transforms_list)
         _log.info("Transforms applied:")
         _log.info(frame_transform)

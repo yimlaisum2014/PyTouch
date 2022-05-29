@@ -5,12 +5,20 @@ import logging
 import numpy as np
 from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader, Subset
-
-from pytouch.datasets import DigitFolder
+from abc import ABC, abstractmethod
+from pytouch.datasets.digit import DigitFolder
 from pytouch.tasks import TouchDetect
 
 _log = logging.getLogger(__name__)
 
+# class BaseKFoldDataModule(LightningDataModule, ABC):
+#     # @abstractmethod
+#     def setup_folds(self, num_folds: int) -> None:
+#         pass
+#
+#     # @abstractmethod
+#     def setup_fold_index(self, fold_index: int) -> None:
+#         pass
 
 class TouchDetectDataModule(LightningDataModule):
     def __init__(
@@ -36,7 +44,6 @@ class TouchDetectDataModule(LightningDataModule):
             baseline=None,
             transform=self.transform(self.cfg.data.transform, train=False),
         )
-
         self.dataset_len = len(train_dataset)
         dataset_idx = list(range(self.dataset_len))
 

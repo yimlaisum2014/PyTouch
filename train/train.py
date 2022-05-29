@@ -7,6 +7,8 @@ import sys
 import hydra
 import pytorch_lightning as pl
 import torch
+from pytouch.datasets.digit import DigitFolder
+from datamodules.touch_detect import TouchDetectDataModule
 from hydra.utils import instantiate
 from omegaconf import OmegaConf
 from pytorch_lightning.callbacks import ModelCheckpoint
@@ -26,17 +28,20 @@ def main(cfg):
     _log.info(f"Optimizer paramters: {OmegaConf.to_yaml(cfg.optimizer)}")
 
     pl.seed_everything(cfg.training.seed)
-
     # # Instantiate objects from config file
     task_model = instantiate(cfg.model, cfg)
     task_data_module = instantiate(cfg.data, cfg)
 
+    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+
+    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     checkpoint_filename = cfg.experiment + "-{epoch}_{val_loss:.3f}_{val_acc:.3f}"
 
     _log.info(
         f"Creating model checkpoint monitoring {cfg.checkpoints.monitor}, mode: {cfg.checkpoints.mode}"
     )
     _log.info(f"Saving top {cfg.checkpoints.save_top_k} checkpoints!")
+
 
     checkpoint_callback = ModelCheckpoint(
         dirpath=cfg.checkpoints.path,

@@ -1,7 +1,10 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All rights reserved.
 
+import torch
 import torch.nn as nn
 from torchvision import models
+from train.models.simple_cnn import SimpleCNNModel
+from pytorch_lightning import LightningModule
 
 
 class TouchDetectModelDefaults:
@@ -13,26 +16,31 @@ class TouchDetectModelDefaults:
 
 class TouchDetectModel:
     def __init__(
-        self,
-        model=models.resnet18,
-        state_dict=None,
-        defaults=TouchDetectModelDefaults,
-        **kwargs
+            self,
+            # model=models.resnet18,
+            model=SimpleCNNModel,
+            # model = models.vgg16,
+            state_dict=None,
+            defaults=TouchDetectModelDefaults,
+            **kwargs
     ):
         super(TouchDetectModel, self).__init__()
         self._model = model
         self.state_dict = state_dict
         self.defaults = defaults
-
-        self._init_model(model, **kwargs)
+        self._init_model(model)
+        # self._init_model(model, **kwargs)
         if state_dict is not None:
-            self._load_state_dict()
+            self._load_state_dict(**kwargs)
         self._model.eval()
 
     def __call__(self, input):
         return self._model(input)
 
     def _init_model(self, model, **kwargs):
+
+        print(self._model.__name__)
+
         if self._model.__name__ == "mobilenet_v2":
             self._model = model(**kwargs)
             self._model.classifier[1] = nn.Linear(
@@ -43,8 +51,32 @@ class TouchDetectModel:
             self._model.fc = nn.Linear(
                 self._model.fc.in_features, self.defaults.CLASSES
             )
+
+        elif self._model.__name__ == "vgg16":
+            self._model = model(**kwargs)
+            self._model.classifier[-1] = nn.Linear(
+                in_features=4096, out_features=self.defaults.CLASSES
+            )
+
+        elif self._model.__name__ == "SimpleCNNModel":
+
+            class CFG:
+                class model:
+                    n_classes = 2
+
+            self._model = model(CFG, **kwargs)
+            # self._model.fc2 = nn.Linear(
+            #     self._model.last_channel, self.defaults.CLASSES
+            # )
+
         else:
             raise NotImplementedError()
 
-    def _load_state_dict(self):
-        self._model.load_state_dict(self.state_dict)
+    def _load_state_dict(self, **kwargs):
+        if isinstance(self._model, LightningModule):
+            if 'model_path' in kwargs:
+                model = self._model
+                checkpoint = torch.load(kwargs['model_path'])
+                model.load_state_dict(checkpoint['state_dict'])
+        else:
+            self._model.load_state_dict(self.state_dict)

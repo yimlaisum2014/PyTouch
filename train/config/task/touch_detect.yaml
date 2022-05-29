@@ -5,16 +5,23 @@ model:
   n_classes: 2
 data:
   _target_: datamodules.touch_detect.TouchDetectDataModule
-  path: "~/Development/datasets/PyTouch/touch_detect"
+  path: "/home/samyim/Dataset/modify/root7/"
   exclude: []
   transform:
-    scales: [64, 64]
-    mean: [0.485, 0.456, 0.406]
-    std: [0.229, 0.224, 0.225]
+    scales: [ 240, 320 ]
+    mean: [ 0,0,0 ]
+    std: [ 1,1,1 ]
+#    mean: [ 0.3884, 0.4025, 0.3997 ]
+#    std: [ 0.1008, 0.0962, 0.1659 ]
+#    scales: [128, 128]
+#    mean: [0.485, 0.456, 0.406]
+#    std: [0.229, 0.224, 0.225]
 optimizer:
-  type: "Adam"
+  type: "SGD"
+#  lr: 0.00847
   lr: 0.00847
   lr_patience: 5
+#  momentum: 0.9
   weight_decay: 1.0115995395401329e-08
 training:
   seed: 42
@@ -37,3 +44,4 @@ checkpoints:
 general:
   verbose: True
   tb_log_path: "./tb_logs/"
+

@@ -1,2 +1,2 @@
-experiment: default
+experiment: "default"
 onnx_export: False

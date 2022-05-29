@@ -1,7 +1,7 @@
 ## examples/surface_3d.py
 
 dataset:
-  path: "/path/to/dataset"
+  path: "/home/sam/Dataset/local/datasets/real/sphere/digit-0.5mm-ball-bearing-zup_2021-08-31-21-37-35/test"
   batch_size: 1
   shuffle: False
   num_workers: 8
