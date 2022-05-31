@@ -96,7 +96,7 @@ class DigitCls(object):
         img = cv2.imread(image_path)
         frame = Image.fromarray(img)
         is_touching, certainty = self.detect(frame)
-        print(f"{image_path} Is touching? {is_touching}, {certainty}")
+        # print(f"{image_path} Is touching? {is_touching}, {certainty}")
 
         # cv2.imshow('image', img)
         #
@@ -167,6 +167,13 @@ class DigitCls(object):
 
             idx += 1
             time.sleep(1)
+
+    @staticmethod
+    def get_classes(root):
+        classes = [d.name for d in os.scandir(root) if d.is_dir()]
+        classes = sorted(classes)
+        class_to_idx = {class_name: x for x, class_name in enumerate(classes)}
+        return class_to_idx
 
 
 def connection():
@@ -252,22 +259,28 @@ if __name__ == "__main__":
     model = "/home/sam/PyTouch/train/outputs/2022-05-28/19-49-49/checkpoints/default-epoch=91_val_loss=0.369_val_acc=0.867.ckpt"  # vgg16 non-touch {1: 216, 0: 984} touch {1: 744, 0: 456}without transform
     model = "/home/sam/PyTouch/train/outputs/2022-05-28/23-54-14/checkpoints/default-epoch=3_val_loss=0.015_val_acc=0.995.ckpt"  # simple CNN non-touch {1: 0, 0: 4000}, touch {1: 3949, 0: 51} with gray
 
+
+    model = "/home/sam/PyTouch/train/outputs/2022-05-30/22-37-58/checkpoints/default-epoch=1_val_loss=0.125_val_acc=0.969.ckpt" # simple CNN -data /root15 graybottlecap -class {'nontouchgray': 0, 'touchbottlegray': 1}  -result touch {1: 3741, 0: 259} non-touch {1: 0, 0: 4000}
+
     d = DigitCls(sn, name, model=model)
 
     # file = "/home/sam/Dataset/modify/root8/non-touch/_90/left_74.png"  # False: {1: 1365, 0: 635}
     # file = "/home/sam/Dataset/modify/root8/touch/_60/processed_img2_flipHorizontal_trial_3_65.png"  # True:   {1: 1128, 0: 448}
 
+    # root7 2000 bottle cap
+    # root13 4000 keyrgb
+    # root 14 4000 bottlergb
     # file = "/home/sam/Dataset/modify/root7/non-touch" # False:
-    file = "/home/sam/Dataset/modify/root7/touch"  # True:
+    # file = "/home/sam/Dataset/modify/root7/touch"  # True:
 
-    file = "/home/sam/Dataset/modify/root10/non-touch"  # False:
-    # file = "/home/sam/Dataset/modify/root10/touch"  # True:
+    file = "/home/sam/Dataset/modify/root15/nontouchgray"  # False:
+    # file = "/home/sam/Dataset/modify/root15/touchbottlegray"  # True:
 
     # image_path = file
     # feature_model = "../train/outputs/2022-05-12/15-09-32/checkpoints/default-epoch=96_val_loss=0.108_val_acc=0.958.ckpt"
     #
     # transform = transforms.Compose([
-    #     transforms.ToPILImage(),
+    #     transforms.ToPILImage(),root14
     #     transforms.Resize((128, 128)),
     #     transforms.ToTensor(),
     # ])
@@ -277,6 +290,12 @@ if __name__ == "__main__":
     # frame = frame.unsqueeze(0)
     # featuremap(feature_model, frame)
 
+    # print class and index
+    print('class and index map')
+    root = os.path.dirname(file)
+    print(d.get_classes(root))
+
+
     import os
 
     # folder = os.path.abspath(os.path.dirname(file))
@@ -284,10 +303,12 @@ if __name__ == "__main__":
     count = {1: 0, 0: 0}
 
     for root, dirs, names in os.walk(file):
-        for name in names:
-            filename = os.path.join(root, name)
-            value = d.detect_file(filename)
-            count[value] += 1
+
+        with click.progressbar(names, length=len(names)) as names:
+            for name in names:
+                filename = os.path.join(root, name)
+                value = d.detect_file(filename)
+                count[value] += 1
 
     print(count)
 

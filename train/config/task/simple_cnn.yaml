@@ -5,7 +5,7 @@ model:
   n_classes: 2
 data:
   _target_: datamodules.touch_detect.TouchDetectDataModule
-  path: "/home/samyim/Dataset/modify/root10/"
+  path: "/home/samyim/Dataset/modify/root14/"
   exclude: []
   transform:
     scales: [240, 320]
@@ -15,17 +15,17 @@ data:
 #    std: None
 
 optimizer:
-  type: "Adam"
+  type: "SGD"
 #  lr: 0.00847
   lr: 0.01
   lr_patience: 5
   weight_decay: 1.0115995395401329e-08
 training:
   seed: 42
-  batch_size: 64
+  batch_size: 128
   n_threads: 12
   gpu_ids: 1
-  n_epochs: 5
+  n_epochs: 50
   train_val_ratio: 0.75
   pin_memory: 1
 checkpoints:
@@ -34,7 +34,7 @@ checkpoints:
   temp_epoch: "last_epoch.chkpt.tmp"
   monitor: "val_loss"
   mode: "min"
-  save_top_k: 10
+  save_top_k: 5
   restore_best: 1
   csv_file_name: "training_log.csv"
   save_weights_only: True

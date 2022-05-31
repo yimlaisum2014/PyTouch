@@ -154,3 +154,7 @@ static
 
 # figures
 train/figure/
+
+# examples
+examples/core
+examples/test/

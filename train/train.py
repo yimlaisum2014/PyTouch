@@ -13,6 +13,7 @@ from hydra.utils import instantiate
 from omegaconf import OmegaConf
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger
+from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 
 _log = logging.getLogger(__name__)
 
@@ -20,7 +21,7 @@ _log = logging.getLogger(__name__)
 @hydra.main(config_path="config", config_name="train")
 def main(cfg):
     _log.info("PyTouch training initialized with the following configuration...")
-    _log.info(OmegaConf.to_yaml(cfg))
+    # _log.info(OmegaConf.to_yaml(cfg))
 
     _log.info(f"Dataset parameters: {OmegaConf.to_yaml(cfg.data)}")
     _log.info(f"Model parameters: {OmegaConf.to_yaml(cfg.model)}")
@@ -33,7 +34,9 @@ def main(cfg):
     task_data_module = instantiate(cfg.data, cfg)
 
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-
+    # get class_id
+    x = DigitFolder
+    print(x._get_classes(None, cfg.data.path))
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     checkpoint_filename = cfg.experiment + "-{epoch}_{val_loss:.3f}_{val_acc:.3f}"
 
@@ -41,7 +44,6 @@ def main(cfg):
         f"Creating model checkpoint monitoring {cfg.checkpoints.monitor}, mode: {cfg.checkpoints.mode}"
     )
     _log.info(f"Saving top {cfg.checkpoints.save_top_k} checkpoints!")
-
 
     checkpoint_callback = ModelCheckpoint(
         dirpath=cfg.checkpoints.path,
@@ -58,11 +60,13 @@ def main(cfg):
     trainer = pl.Trainer(
         logger=logger,
         max_epochs=cfg.training.n_epochs,
-        callbacks=[checkpoint_callback],
+        callbacks=[checkpoint_callback, EarlyStopping(patience=10, monitor="val_loss", mode="min")],
+        # callbacks=[checkpoint_callback],
         gpus=1,
         default_root_dir=".",
     )
 
+    # trainer = Trainer(callbacks=[EarlyStopping(monitor="val_loss", mode="min")])
     trainer.fit(task_model, task_data_module)
 
     _log.info(
