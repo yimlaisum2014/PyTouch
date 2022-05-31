@@ -48,6 +48,7 @@ class DigitFolder(VisionDataset):
 
     def _get_classes(self, root):
         classes = [d.name for d in os.scandir(root) if d.is_dir()]
+        classes = sorted(classes)
         class_to_idx = {class_name: x for x, class_name in enumerate(classes)}
         return classes, class_to_idx
 
