@@ -23,13 +23,24 @@ class SimpleCNNModel(LightningModule):
             nn.BatchNorm2d(16),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size = 2, stride = 2))
-        self.fc0 = nn.Linear(70224, 5000)
+        ## Input (240x320)
+        # self.fc0 = nn.Linear(70224, 5000)
+        # self.relu0 = nn.ReLU()
+        # self.fc = nn.Linear(5000, 2500)
+        # self.relu = nn.ReLU()
+        # self.fc1 = nn.Linear(2500, 500)
+        # self.relu1 = nn.ReLU()
+        # self.fc2 = nn.Linear(500, cfg.model.n_classes)
+
+        ## Input (64*64)
+        self.fc0 = nn.Linear(2704, 400)
         self.relu0 = nn.ReLU()
-        self.fc = nn.Linear(5000, 2500)
+        self.fc = nn.Linear(400, 120)
         self.relu = nn.ReLU()
-        self.fc1 = nn.Linear(2500, 500)
+        self.fc1 = nn.Linear(120, 84)
         self.relu1 = nn.ReLU()
-        self.fc2 = nn.Linear(500, cfg.model.n_classes)
+        self.fc2 = nn.Linear(84, cfg.model.n_classes)
+
 
         self.criterion = nn.CrossEntropyLoss()
 

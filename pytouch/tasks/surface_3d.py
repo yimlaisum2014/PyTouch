@@ -9,7 +9,8 @@ import torch
 import torch.nn as nn
 
 import pytouch.tasks.surface3d.geometry as geometry
-from pytouch.models import Pix2PixModel, PyTouchZoo
+from pytouch.models.zoo import PyTouchZoo
+from pytouch.models import Pix2PixModel
 
 _log = logging.getLogger(__name__)
 

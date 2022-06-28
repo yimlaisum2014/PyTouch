@@ -155,6 +155,9 @@ static
 # figures
 train/figure/
 
+# runs
+train/runs/
+
 # examples
 examples/core
 examples/test/

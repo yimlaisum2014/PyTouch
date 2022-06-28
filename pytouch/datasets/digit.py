@@ -37,7 +37,6 @@ class DigitFolder(VisionDataset):
         )
         self.exclude = exclude
         self.loader = loader
-
         classes, class_to_idx = self._get_classes(self.root)
         self.class_to_idx = class_to_idx
 

@@ -60,9 +60,10 @@ class SensorFolder(VisionDataset):
         self.serials = [sample[3] for sample in samples]
 
     def _get_classes(self, root):
+        # print('hahaha')
         classes = [d.name for d in os.scandir(root) if d.is_dir()]
         class_to_idx = {class_name: x for x, class_name in enumerate(classes)}
-        return classes, class_to_idx
+        return [1,2], {} #classes, class_to_idx
 
     def _get_baseline_path(self, path):
         ext_idx = path.rfind(".")

@@ -8,7 +8,7 @@ import hydra
 import pytorch_lightning as pl
 import torch
 from pytouch.datasets.digit import DigitFolder
-from datamodules.touch_detect import TouchDetectDataModule
+# from datamodules.touch_detect import TouchDetectDataModule
 from hydra.utils import instantiate
 from omegaconf import OmegaConf
 from pytorch_lightning.callbacks import ModelCheckpoint
@@ -35,8 +35,8 @@ def main(cfg):
 
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     # get class_id
-    x = DigitFolder
-    print(x._get_classes(None, cfg.data.path))
+    x = DigitFolder(cfg.data.path)
+    print(x._get_classes(cfg.data.path))
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     checkpoint_filename = cfg.experiment + "-{epoch}_{val_loss:.3f}_{val_acc:.3f}"
 
@@ -60,8 +60,8 @@ def main(cfg):
     trainer = pl.Trainer(
         logger=logger,
         max_epochs=cfg.training.n_epochs,
-        callbacks=[checkpoint_callback, EarlyStopping(patience=10, monitor="val_loss", mode="min")],
-        # callbacks=[checkpoint_callback],
+        # callbacks=[checkpoint_callback, EarlyStopping(patience=5, monitor="val_loss", mode="min")],
+        callbacks=[checkpoint_callback],
         gpus=1,
         default_root_dir=".",
     )

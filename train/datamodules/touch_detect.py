@@ -7,7 +7,7 @@ from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader, Subset
 from abc import ABC, abstractmethod
 from pytouch.datasets.digit import DigitFolder
-from pytouch.tasks import TouchDetect
+from pytouch.tasks.touch_detect import TouchDetect
 
 _log = logging.getLogger(__name__)
 

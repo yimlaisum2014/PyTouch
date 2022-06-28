@@ -3,6 +3,7 @@
 from .contact_area import ContactArea
 from .slip_detect import SlipDetect
 from .surface_3d import Surface3D
-from .touch_detect import TouchDetect
+# from .touch_detect import TouchDetect
 
-__all__ = ["TouchDetect", "SlipDetect", "ContactArea", "Surface3D"]
+# __all__ = ["TouchDetect", "SlipDetect", "ContactArea", "Surface3D"]
+__all__ = ["SlipDetect", "ContactArea", "Surface3D"]

@@ -6,8 +6,9 @@ import torch
 import torch.nn as nn
 from torchvision import transforms
 
-from pytouch.models import PyTouchZoo
-from pytouch.models.touch_detect import TouchDetectModel, TouchDetectModelDefaults
+from pytouch.models.zoo import PyTouchZoo
+from pytouch.models.touch_detect import TouchDetectModel
+from pytouch.models.touch_detect import TouchDetectModelDefaults
 
 _log = logging.getLogger(__name__)
 
@@ -81,7 +82,6 @@ class TouchDetect(nn.Module):
     ):
         transforms_list = []
         transforms_list.append(transforms.Resize(list(data_cfg.scales)))
-        _log.info("0st_Transforms applied:")
         _log.info(transforms_list)
         #if train:
             # transforms_list.append(transforms.RandomHorizontalFlip())
@@ -96,7 +96,6 @@ class TouchDetect(nn.Module):
             transforms.ToTensor(),
             transforms.Normalize(mean=data_cfg.mean, std=data_cfg.std),
         ]
-        _log.info("1st_Transforms applied:")
         _log.info(transforms_list)
         frame_transform = transforms.Compose(transforms_list)
         _log.info("Transforms applied:")

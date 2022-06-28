@@ -27,9 +27,11 @@ import click
 
 
 class MyTouchDetectValues:
-    SCALES = [240, 320]
+    SCALES = [64, 64]
     MEANS = [0, 0, 0]
     STDS = [1, 1, 1]
+    # MEANS = [0.39534545 ,0.41399255 ,0.40639707]
+    # STDS =[0.1094584  ,0.10767335 ,0.17195037]
     CLASSES = 2
 
 
@@ -248,33 +250,135 @@ def featuremap(my_custom_model, frame):
         plt.savefig(f"../train/figure/True_layer_{num_layer}.png")
 
 
+def connect(camera):
+    connected = False
+    while not connected:
+        print('Try connecting....')
+        try:
+            camera.connect()
+            print('Succeed')
+            connected = True
+        except:
+            print('Failed')
+            pass
+        time.sleep(1)
+
+def prepare_image(img,to_gray):
+
+    if to_gray:
+    # gray
+        print("Enter gray")
+        gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+        # cv2.imwrite(f"grayimg_{time.ctime()}.png",gray)
+        # make it be 3-channels
+        img = np.zeros((gray.shape[0], gray.shape[1], 3))
+        img[:,:,0] = gray
+        img[:,:,1] = gray
+        img[:,:,2] = gray
+    # cv2.imwrite(f"after_{time.ctime()}.png",img)
+    # to PIL image
+    img = PILImage.fromarray(img.astype('uint8'), 'RGB')
+    return img
+
 if __name__ == "__main__":
     # touch_detect()
     # DigitCls.get_frames(show=True, save=True, detect=False)
     # sys.exit(1)
+    from PIL import Image as PILImage
 
     sn, name = "D20356", "Right Gripper"
-    model = "/home/sam/PyTouch/train/outputs/2022-05-28/18-24-15/checkpoints/default-epoch=92_val_loss=0.024_val_acc=0.995.ckpt"  # simple CNN  non-touch {1: 618, 0: 582} touch {1: 1196, 0: 4} without transform
-    model = "/home/sam/PyTouch/train/outputs/2022-05-28/19-30-25/checkpoints/default-epoch=96_val_loss=0.333_val_acc=0.862.ckpt"  # Resnet18 non-touch {1: 999, 0: 201} touch {1: 1144, 0: 56} without transform
-    model = "/home/sam/PyTouch/train/outputs/2022-05-28/19-49-49/checkpoints/default-epoch=91_val_loss=0.369_val_acc=0.867.ckpt"  # vgg16 non-touch {1: 216, 0: 984} touch {1: 744, 0: 456}without transform
-    model = "/home/sam/PyTouch/train/outputs/2022-05-28/23-54-14/checkpoints/default-epoch=3_val_loss=0.015_val_acc=0.995.ckpt"  # simple CNN non-touch {1: 0, 0: 4000}, touch {1: 3949, 0: 51} with gray
+    # digit_right = Digit(sn,name)
+    #
+    # connect(digit_right)
+    #
+    # fps = int(1)
+    # digit_right.set_fps(fps)
 
 
-    model = "/home/sam/PyTouch/train/outputs/2022-05-30/22-37-58/checkpoints/default-epoch=1_val_loss=0.125_val_acc=0.969.ckpt" # simple CNN -data /root15 graybottlecap -class {'nontouchgray': 0, 'touchbottlegray': 1}  -result touch {1: 3741, 0: 259} non-touch {1: 0, 0: 4000}
+    # without early stop -> overfit
+    # model = "/home/sam/PyTouch/train/outputs/2022-05-28/18-24-15/checkpoints/default-epoch=92_val_loss=0.024_val_acc=0.995.ckpt"  # simple CNN  non-touch {1: 618, 0: 582} touch {1: 1196, 0: 4} without transform
+    # model = "/home/sam/PyTouch/train/outputs/2022-05-28/19-30-25/checkpoints/default-epoch=96_val_loss=0.333_val_acc=0.862.ckpt"  # Resnet18 non-touch {1: 999, 0: 201} touch {1: 1144, 0: 56} without transform
+    # model = "/home/sam/PyTouch/train/outputs/2022-05-28/19-49-49/checkpoints/default-epoch=91_val_loss=0.369_val_acc=0.867.ckpt"  # vgg16 non-touch {1: 216, 0: 984} touch {1: 744, 0: 456}without transform
+    # model = "/home/sam/PyTouch/train/outputs/2022-05-28/23-54-14/checkpoints/default-epoch=3_val_loss=0.015_val_acc=0.995.ckpt"  # simple CNN non-touch {1: 0, 0: 4000}, touch {1: 3949, 0: 51} with gray
+
+    # gray image good
+    # model = "/home/sam/PyTouch/train/outputs/2022-05-30/22-37-58/checkpoints/default-epoch=1_val_loss=0.125_val_acc=0.969.ckpt" # simple CNN -data /root15 gray bottlecap -class {'nontouchgray': 0, 'touchbottlegray': 1}  -result touch {1: 3741, 0: 259} non-touch {1: 0, 0: 4000}
+    # model = "/home/sam/PyTouch/train/outputs/2022-05-30/22-54-30/checkpoints/default-epoch=49_val_loss=0.000_val_acc=1.000.ckpt" #simple CNN -data /root18 rgbbottlecap -class {'nontouchgray': 0, 'touchbottlegray': 1}  -result touch  {1: 0, 0: 4000} non-touch {1: 0, 0: 4000}
+    # model = "/home/sam/PyTouch/train/outputs/2022-05-31/03-07-54/checkpoints/default-epoch=49_val_loss=0.000_val_acc=1.000.ckpt" #simple CNN -data /root18 rgbbottlecapwithnorl -class {'nontouchgray': 0, 'touchbottlegray': 1} nontouch {1: 0, 0: 4000} touch {1: 0, 0: 4000}
+    # model = "/home/sam/DATA/PyTouch/train/outputs/2022-05-31/04-07-01/checkpoints/default-epoch=9_val_loss=0.075_val_acc=0.988.ckpt" #simple CNN -data /root16 gray cap -class {'nontouchgray': 0, 'touchcapgray': 1} touch {1: 3898, 0: 102} non-touch {1: 3, 0: 3997}
+    # model = "/home/sam/DATA/PyTouch/train/outputs/2022-05-31/04-22-27/checkpoints/default-epoch=14_val_loss=0.018_val_acc=0.997.ckpt" #simple CNN -data /root17 gray key -class {'nontouchgray': 0, 'touchkeygray': 1} touch  {1: 3977, 0: 23} non-touch {1: 0, 0: 4000}
+    
+    # 4 class gray
+    # model = "/home/sam/PyTouch/train/outputs/2022-05-31/04-44-54/checkpoints/default-epoch=1_val_loss=0.782_val_acc=0.688.ckpt" #simpleCNN -data /all grey -class {'nontouchgray': 0, 'touchcapgray': 1, 'touchkeygray': 2, 'touchbottlegray': 3}) nontouch {3: 0, 2: 0, 1: 1047, 0: 2953}
+                                                                                                                                                                # key {3: 435, 2: 3240, 1: 136, 0: 189} cap {3: 385, 2: 850, 1: 2638, 0: 127} bottle {3: 2104, 2: 1454, 1: 374, 0: 68}
+    # rgb different model gray/rgb with/without transform with early stop Both 50 epochs
+    # model = "/home/sam/DATA/PyTouch/train/outputs/2022-05-31/05-26-36/checkpoints/default-epoch=49_val_loss=0.029_val_acc=0.999.ckpt" # Resnet18 without transform -data /root17 -class {'nontouchgray': 0, 'touchbottlegray': 1} nontouch  {1: 3, 0: 3997} touch {1: 2798, 0: 1202}
+    # model = "/home/sam/PyTouch/train/outputs/2022-05-31/05-45-54/checkpoints/default-epoch=49_val_loss=0.080_val_acc=0.982.ckpt" # Resnet18 without transform -data /root14 -class {'nontouchrgb': 0, 'touchbottlecaprgb': 1} nontouch  {1: 1617, 0: 2383} touch  {1: 38, 0: 3962}
+    # model = "/home/sam/PyTouch/train/outputs/2022-05-31/06-08-29/checkpoints/default-epoch=43_val_loss=0.063_val_acc=0.988.ckpt" # Resnet18 transform -data /root14 -class {'nontouchrgb': 0, 'touchbottlecaprgb': 1} nontouch  {1:1919, 0: 2081}  touch  {1: 32, 0: 3968}
+    # model = "/home/sam/PyTouch/train/outputs/2022-05-31/06-50-41/checkpoints/default-epoch=20_val_loss=0.142_val_acc=0.972.ckpt"  # VGG16 transform -data /root14 -class {'nontouchrgb': 0, 'touchbottlecaprgb': 1} nontouch 1: 4000, 0: 0} touch   {1:2314, 0: 1686}
+
+    # split model 
+    model = "/home/sam/DATA/PyTouch/train/outputs/2022-06-28/14-52-42/checkpoints/default-epoch=49_val_loss=0.040_val_acc=0.989.ckpt" # Simple CNN gray-waterbottle Left
+    # model = "/home/sam/DATA/PyTouch/train/outputs/2022-06-27/05-15-01/checkpoints/default-epoch=98_val_loss=0.002_val_acc=1.000.ckpt" # Resenet18 gray-waterbottle right
+    
+    # model = TouchDetect(model_path=model, defaults=MyTouchDetectValues, sensor=DigitSensor)
+    # count = 0
+    # import pandas as pd
+    #
+    # df = pd.DataFrame()
+    #
+    # for n in range(10):
+    #     print("before",time.ctime())
+    #     right_image = digit_right.get_frame()
+    #     print("after",time.ctime())
+    #
+    #     # image_serial = pd.Series(data=[right_image[0],right_image[1]],index=["W","H"])
+    #     # df = pd.DataFrame()
+    #     # df.append(image_serial, ignore_index=True)
+    #
+    #     img = right_image.reshape((1, -1))
+    #     predict_image = prepare_image(right_image, to_gray=False)
+    #     # result, _ = model(predict_image)
+    #
+    #     row_df = pd.concat([pd.DataFrame([n], columns=['id']), pd.DataFrame([time.ctime()], columns=['data']), pd.DataFrame(img)], axis=1)
+    #     df = pd.concat([df, row_df])
+    #
+    # df = df.set_index('id')
+    # print(df)
 
     d = DigitCls(sn, name, model=model)
 
     # file = "/home/sam/Dataset/modify/root8/non-touch/_90/left_74.png"  # False: {1: 1365, 0: 635}
     # file = "/home/sam/Dataset/modify/root8/touch/_60/processed_img2_flipHorizontal_trial_3_65.png"  # True:   {1: 1128, 0: 448}
+    
 
-    # root7 2000 bottle cap
-    # root13 4000 keyrgb
-    # root 14 4000 bottlergb
-    # file = "/home/sam/Dataset/modify/root7/non-touch" # False:
-    # file = "/home/sam/Dataset/modify/root7/touch"  # True:
+    # gray root 15 bottle 16 cap 17 key
 
-    file = "/home/sam/Dataset/modify/root15/nontouchgray"  # False:
-    # file = "/home/sam/Dataset/modify/root15/touchbottlegray"  # True:
+    # file = "/home/sam/DATA/Dataset/modify/root15/nontouchgray"  # False:
+    # file = "/home/sam/DATA/Dataset/modify/root17/touchkeygray"  # True:
+    # file = "/home/sam/Dataset/modify/root16/touchcapgray"  # True:
+    #file = "/home/sam/Dataset/modify/root15/touchbottlegray"  # True:
+
+    # rgb root 14 bottle
+    # file = "/home/sam/Dataset/modify/root14/nontouchrgb"  # False:
+    # file = "/home/sam/Dataset/modify/root14/touchbottlecaprgb"  # True:
+
+    # test-data folder
+    # file = "/home/sam/digit-interface/example/root20/testbottlegray" # simplecnn-gray-bottle {1: 763, 0: 1237}  restnet18-gray-bottle  {1: 1441, 0: 559 }
+    # file = "/home/sam/digit-interface/example/root20/testcapgray" # simplecnn-gray-cap   {1: 794, 0: 1206}
+    # file = "/home/sam/digit-interface/example/root20/testkeygray" # simplecnn-gray-key  {1: 1470, 0: 530}
+    # file = "/home/sam/digit-interface/example/root20/testnontouchgray" # simplecnn-gray-nontouch key {0, 1: 0, 0: 2000} cap {1: 267, 0: 1733} restnet18-gray-nontouch  {1: 308, 0: 1692}
+
+    # split data
+    file = "/home/sam/DATA/Dataset/modify/left-bottlecap-gray/nontouchgray" # Simple {touch 1: 2000, non-touch 0: 0}
+    # file = "/home/sam/DATA/Dataset/modify/left-bottlecap-gray/touchbottlecapgray" # {touch 1: 38, non-touch 0: 1962}
+    # file = "/home/sam/DATA/Dataset/modify/left-cap-gray/nontouchgray" #
+    # file = "/home/sam/DATA/Dataset/modify/left-cap-gray/touchcapgray" #
+    # file = "/home/sam/DATA/Dataset/modify/right-bottlecap-gray/touchbottlecapgray" #
+    # file = "/home/sam/DATA/Dataset/modify/right-bottlecap-gray/nontouchgray" #
+    # file = "/home/sam/DATA/Dataset/modify/right-bottlecap-gray/touchbottlecapgray" #
+
+
 
     # image_path = file
     # feature_model = "../train/outputs/2022-05-12/15-09-32/checkpoints/default-epoch=96_val_loss=0.108_val_acc=0.958.ckpt"
@@ -291,6 +395,7 @@ if __name__ == "__main__":
     # featuremap(feature_model, frame)
 
     # print class and index
+    #####################################################################################
     print('class and index map')
     root = os.path.dirname(file)
     print(d.get_classes(root))
@@ -300,7 +405,8 @@ if __name__ == "__main__":
 
     # folder = os.path.abspath(os.path.dirname(file))
 
-    count = {1: 0, 0: 0}
+    # count = {1: 0, 0: 0}
+    count = {3:0, 2:0,1: 0, 0: 0}
 
     for root, dirs, names in os.walk(file):
 
@@ -311,7 +417,7 @@ if __name__ == "__main__":
                 count[value] += 1
 
     print(count)
-
+    #######################################################################################
     # file = "/home/sam/Dataset/modify/root7/non-touch/_90"  # False: {1: 904, 0: 296} Resnet18
     # file = "/home/sam/Dataset/modify/root7/touch/_60"  # True: {1: 845, 0: 355} Resnet18
     #

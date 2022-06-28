@@ -2,17 +2,18 @@
 model:
   _target_: models.simple_cnn.SimpleCNNModel
   pre_trained: False
-  n_classes: 2
+  n_classes: 4
 data:
   _target_: datamodules.touch_detect.TouchDetectDataModule
-  path: "/home/samyim/Dataset/modify/root14/"
+  path: "/home/samyim/digit-interface/example/gray-folder"
+  #path: "/home/samyim/Dataset/modify/root17/"
   exclude: []
   transform:
     scales: [240, 320]
-    mean: [0,0,0]
-    std: [1,1,1]
-#    mean: None
-#    std: None
+#    mean: [0,0,0]
+#    std: [1,1,1]
+#   mean: [0.3949756 ,0.41411093 ,0.4044061]
+#   std: [0.10875653 ,0.10813904 ,0.16938154]
 
 optimizer:
   type: "SGD"
